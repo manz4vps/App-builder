@@ -20,7 +20,6 @@ import android.widget.TextView
 import rikka.shizuku.Shizuku
 import kotlin.math.abs
 
-// Data class buat nampung daftar aplikasi lu
 data class AppItem(val name: String, val pkg: String, val command: String)
 
 class SidebarService : Service() {
@@ -34,20 +33,16 @@ class SidebarService : Service() {
     private var initialTouchX = 0f
     private var initialTouchY = 0f
 
-    // 👇 DI SINI TEMPAT LU NAMBAH/NGURANGIN APLIKASI 👇
-    // Tinggal copy barisnya ke bawah kalau mau nambah aplikasi lain!
+    // 4 APLIKASI UTAMA (WhatsApp, Chrome, YouTube, TikTok)
     private val appList = listOf(
         AppItem("WhatsApp", "com.whatsapp", "am start --windowingMode 5 -n com.whatsapp/.Main"),
         AppItem("Chrome", "com.android.chrome", "am start --windowingMode 5 -n com.android.chrome/com.google.android.apps.chrome.Main"),
-        AppItem("Settings", "com.android.settings", "am start --windowingMode 5 -n com.android.settings/.Settings"),
-        AppItem("YouTube", "com.google.android.youtube", "am start --windowingMode 5 -p com.google.android.youtube"),
-        AppItem("Instagram", "com.instagram.android", "am start --windowingMode 5 -p com.instagram.android"),
+        AppItem("YouTube", "com.google.android.youtube", "am start --windowingMode 5 -n com.google.android.youtube/com.google.android.apps.youtube.app.WatchWhileActivity"),
         AppItem("TikTok", "com.zhiliaoapp.musically", "am start --windowingMode 5 -p com.zhiliaoapp.musically")
     )
 
     override fun onBind(intent: Intent?): IBinder? = null
 
-    // BIKIN KEBAL DARI CLEAR RAM (START_STICKY)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         return START_STICKY 
     }
@@ -55,19 +50,17 @@ class SidebarService : Service() {
     override fun onCreate() {
         super.onCreate()
         
-        // 1. SISTEM ANTI-KILL (Foreground Service Notifikasi)
         val channelId = "SidebarChannel"
         val channel = NotificationChannel(channelId, "Smart Sidebar", NotificationManager.IMPORTANCE_MIN)
         getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
         
         val notification = Notification.Builder(this, channelId)
             .setContentTitle("Smart Sidebar Aktif")
-            .setContentText("Kebal dari hapus memori.")
+            .setContentText("Berjalan di latar belakang.")
             .setSmallIcon(android.R.drawable.ic_menu_agenda)
             .build()
         startForeground(1, notification)
 
-        // 2. SETUP JENDELA MENGAPUNG
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
         params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
@@ -82,7 +75,7 @@ class SidebarService : Service() {
         val handle = sidebarView.findViewById<View>(R.id.sidebar_handle)
         val panel = sidebarView.findViewById<View>(R.id.sidebar_panel)
 
-        // 3. GENERATE GRID APLIKASI OTOMATIS (2 Kolom)
+        // Generate Grid Aplikasi (4 Item: 2x2 rapi)
         val grid = sidebarView.findViewById<GridLayout>(R.id.app_grid)
         val pm = packageManager
 
@@ -95,28 +88,27 @@ class SidebarService : Service() {
             gridParams.width = 0
             gridParams.height = GridLayout.LayoutParams.WRAP_CONTENT
             gridParams.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
-            gridParams.setMargins(0, 16, 0, 16)
+            gridParams.setMargins(4, 12, 4, 12)
             itemLayout.layoutParams = gridParams
 
             val icon = ImageView(this)
-            icon.layoutParams = LinearLayout.LayoutParams(110, 110) // Ukuran Ikon
+            icon.layoutParams = LinearLayout.LayoutParams(85, 85)
             try {
                 icon.setImageDrawable(pm.getApplicationIcon(app.pkg))
             } catch (e: Exception) {
-                icon.setImageResource(android.R.drawable.sym_def_app_icon) // Ikon darurat
+                icon.setImageResource(android.R.drawable.sym_def_app_icon)
             }
 
             val text = TextView(this)
             text.text = app.name
             text.setTextColor(Color.WHITE)
-            text.textSize = 11f
+            text.textSize = 10f
             text.gravity = Gravity.CENTER
-            text.setPadding(0, 12, 0, 0)
+            text.setPadding(0, 6, 0, 0)
 
             itemLayout.addView(icon)
             itemLayout.addView(text)
 
-            // Aksi kalau aplikasi dipencet
             itemLayout.setOnClickListener {
                 runShizuku(app.command)
                 panel.visibility = View.GONE
@@ -126,7 +118,7 @@ class SidebarService : Service() {
             grid.addView(itemLayout)
         }
 
-        // 4. LOGIKA SWIPE 2X (BUKA - TUTUP)
+        // Logika Touch: Geser Atas-Bawah & Swipe 2x untuk Buka/Tutup
         handle.setOnTouchListener { _, event ->
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
@@ -137,7 +129,7 @@ class SidebarService : Service() {
                 }
                 MotionEvent.ACTION_MOVE -> {
                     val deltaY = (event.rawY - initialTouchY).toInt()
-                    if (abs(deltaY) > 10) {
+                    if (abs(deltaY) > 5) {
                         params.y = initialY + deltaY
                         windowManager.updateViewLayout(sidebarView, params)
                     }
