@@ -24,7 +24,7 @@ class MainActivity : Activity() {
             }
         }
 
-        // TOMBOL 2: Minta Izin Shizuku
+        // TOMBOL 2: Izin Shizuku
         findViewById<Button>(R.id.btn_req_shizuku).setOnClickListener {
             try {
                 if (Shizuku.pingBinder()) {
@@ -41,21 +41,16 @@ class MainActivity : Activity() {
             }
         }
 
-        // TOMBOL 3: Jalankan Sidebar (Sekaligus kita bikin OTOMATIS JALAN)
+        // TOMBOL 3: Jalankan Sidebar secara manual
         findViewById<Button>(R.id.btn_start_service).setOnClickListener {
-            startSidebarService()
+            if (Settings.canDrawOverlays(this)) {
+                val serviceIntent = Intent(this, SidebarService::class.java)
+                startService(serviceIntent)
+                Toast.makeText(this, "Smart Sidebar Dijalankan!", Toast.LENGTH_SHORT).show()
+                finish()
+            } else {
+                Toast.makeText(this, "Pencet Tombol 1 dulu Bro!", Toast.LENGTH_SHORT).show()
+            }
         }
-
-        // OTOMATIS JALAN: Kalau izin overlay udah beres, aplikasi langsung otomatis 
-        // aktifin sidebar dan keluar sendiri dari menu utama!
-        if (Settings.canDrawOverlays(this)) {
-            startSidebarService()
-        }
-    }
-
-    private fun startSidebarService() {
-        val serviceIntent = Intent(this, SidebarService::class.java)
-        startForegroundService(serviceIntent)
-        finish() // Langsung tutup halaman menu utamanya biar ga mengganggu
     }
 }
