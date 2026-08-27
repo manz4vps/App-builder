@@ -9,7 +9,6 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
-import android.widget.Button
 import rikka.shizuku.Shizuku
 
 class SidebarService : Service() {
@@ -32,14 +31,14 @@ class SidebarService : Service() {
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
             PixelFormat.TRANSLUCENT
         )
-        params.gravity = Gravity.LEFT or Gravity.CENTER_VERTICAL
+        params.gravity = Gravity.START or Gravity.CENTER_VERTICAL
 
         sidebarView = LayoutInflater.from(this).inflate(R.layout.layout_sidebar, null)
 
         val handle = sidebarView.findViewById<View>(R.id.sidebar_handle)
         val panel = sidebarView.findViewById<View>(R.id.sidebar_panel)
-        
-        // Logika geser (Swipe) handle ke kanan
+
+        // Deteksi SWIPE Kiri ke Kanan
         handle.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
@@ -48,10 +47,10 @@ class SidebarService : Service() {
                 }
                 MotionEvent.ACTION_UP -> {
                     val deltaX = event.rawX - initialX
-                    if (deltaX > 50) {
+                    if (deltaX > 20) { // Geser sedikit ke kanan langsung kebuka
                         isPanelOpen = true
                         panel.visibility = View.VISIBLE
-                    } else if (deltaX < 10 && isPanelOpen) {
+                    } else if (deltaX < -10 && isPanelOpen) {
                         isPanelOpen = false
                         panel.visibility = View.GONE
                     }
@@ -61,21 +60,23 @@ class SidebarService : Service() {
             }
         }
 
-        // Tombol Aplikasi Floating
-        sidebarView.findViewById<Button>(R.id.btn_wa).setOnClickListener {
-            openApp("com.whatsapp", "com.whatsapp.Main")
+        // Action Klik WhatsApp
+        sidebarView.findViewById<View>(R.id.btn_wa).setOnClickListener {
+            openAppFloating("com.whatsapp")
             panel.visibility = View.GONE
             isPanelOpen = false
         }
 
-        sidebarView.findViewById<Button>(R.id.btn_chrome).setOnClickListener {
-            openApp("com.android.chrome", "com.google.android.apps.chrome.Main")
+        // Action Klik Chrome
+        sidebarView.findViewById<View>(R.id.btn_chrome).setOnClickListener {
+            openAppFloating("com.android.chrome")
             panel.visibility = View.GONE
             isPanelOpen = false
         }
 
-        sidebarView.findViewById<Button>(R.id.btn_settings).setOnClickListener {
-            openApp("com.android.settings", ".Settings")
+        // Action Klik Settings
+        sidebarView.findViewById<View>(R.id.btn_settings).setOnClickListener {
+            openAppFloating("com.android.settings")
             panel.visibility = View.GONE
             isPanelOpen = false
         }
@@ -83,10 +84,13 @@ class SidebarService : Service() {
         windowManager.addView(sidebarView, params)
     }
 
-    private fun openApp(packageName: String, activityName: String) {
-        val command = "am start --windowingMode 5 -n $packageName/$activityName"
+    // Mantra Pemanggil Windowing Mode Floating via Shizuku (Fix 100% Buka)
+    private fun openAppFloating(packageName: String) {
+        val command = "am start --windowingMode 5 -n $(cmd package resolve-activity --brief $packageName | tail -n 1)"
         try {
-            Shizuku.newProcess(arrayOf("sh", "-c", command), null, null)
+            if (Shizuku.pingBinder()) {
+                Shizuku.newProcess(arrayOf("sh", "-c", command), null, null)
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
