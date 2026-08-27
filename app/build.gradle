@@ -9,15 +9,25 @@ android {
 
     defaultConfig {
         applicationId "com.contoh.smartsidebar"
-        minSdk 26 // Minimal Android 8
+        minSdk 26
         targetSdk 34
         versionCode 1
         versionName "1.0"
+    }
+
+    // Samain versi Java 17 biar kodingan gak bentrok
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
     }
 }
 
 dependencies {
     implementation 'androidx.core:core-ktx:1.12.0'
-    // Library Shizuku wajib masuk sini
+    // Library Shizuku buat maksa buka Floating Window
     implementation 'dev.rikka.shizuku:api:13.1.5'
 }
