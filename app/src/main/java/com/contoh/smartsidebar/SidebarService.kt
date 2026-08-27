@@ -11,6 +11,7 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.ImageView
 import rikka.shizuku.Shizuku
+import kotlin.math.abs
 
 class SidebarService : Service() {
 
@@ -43,7 +44,6 @@ class SidebarService : Service() {
         val handle = sidebarView.findViewById<View>(R.id.sidebar_handle)
         val panel = sidebarView.findViewById<View>(R.id.sidebar_panel)
 
-        // BACA IKON APLIKASI ASLI DARI HP
         try {
             val pm = packageManager
             sidebarView.findViewById<ImageView>(R.id.ic_wa).setImageDrawable(pm.getApplicationIcon("com.whatsapp"))
@@ -53,7 +53,7 @@ class SidebarService : Service() {
             e.printStackTrace()
         }
 
-        // LOGIKA DRAG (ATAS BAWAH) & SWIPE (KANAN)
+        // LOGIKA BARU: Bisa digeser atas/bawah, dan di-KLIK/SWIPE KANAN untuk Buka-Tutup
         handle.setOnTouchListener { _, event ->
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
@@ -63,20 +63,27 @@ class SidebarService : Service() {
                     true
                 }
                 MotionEvent.ACTION_MOVE -> {
-                    // Geser atas bawah
                     val deltaY = (event.rawY - initialTouchY).toInt()
-                    params.y = initialY + deltaY
-                    windowManager.updateViewLayout(sidebarView, params)
+                    // Hanya geser kalau jari gerak lumayan jauh (biar nggak bentrok sama klik)
+                    if (abs(deltaY) > 10) {
+                        params.y = initialY + deltaY
+                        windowManager.updateViewLayout(sidebarView, params)
+                    }
                     true
                 }
                 MotionEvent.ACTION_UP -> {
                     val deltaX = event.rawX - initialTouchX
-                    if (deltaX > 20) {
+                    val deltaY = event.rawY - initialTouchY
+                    
+                    // Kalau jari cuma neken (Klik), otomatis Buka/Tutup panelnya!
+                    if (abs(deltaX) < 10 && abs(deltaY) < 10) {
+                        isPanelOpen = !isPanelOpen
+                        panel.visibility = if (isPanelOpen) View.VISIBLE else View.GONE
+                    } 
+                    // Kalau sengaja digeser ke kanan -> Buka
+                    else if (deltaX > 20) {
                         isPanelOpen = true
                         panel.visibility = View.VISIBLE
-                    } else if (deltaX < -10 && isPanelOpen) {
-                        isPanelOpen = false
-                        panel.visibility = View.GONE
                     }
                     true
                 }
@@ -84,23 +91,21 @@ class SidebarService : Service() {
             }
         }
 
-        // Tombol WhatsApp (Pakai --bounds biar ukurannya lebih kecil)
+        // KITA HAPUS --bounds BIAR APLIKASI LANCAR JAYA LAGI
         sidebarView.findViewById<View>(R.id.btn_wa).setOnClickListener {
-            runShizuku("am start --windowingMode 5 --bounds 150,200,900,1600 -n com.whatsapp/.Main")
+            runShizuku("am start --windowingMode 5 -n com.whatsapp/.Main")
             panel.visibility = View.GONE
             isPanelOpen = false
         }
 
-        // Tombol Chrome
         sidebarView.findViewById<View>(R.id.btn_chrome).setOnClickListener {
-            runShizuku("am start --windowingMode 5 --bounds 150,200,900,1600 -n com.android.chrome/com.google.android.apps.chrome.Main")
+            runShizuku("am start --windowingMode 5 -n com.android.chrome/com.google.android.apps.chrome.Main")
             panel.visibility = View.GONE
             isPanelOpen = false
         }
 
-        // Tombol Settings
         sidebarView.findViewById<View>(R.id.btn_settings).setOnClickListener {
-            runShizuku("am start --windowingMode 5 --bounds 150,200,900,1600 -n com.android.settings/.Settings")
+            runShizuku("am start --windowingMode 5 -n com.android.settings/.Settings")
             panel.visibility = View.GONE
             isPanelOpen = false
         }
