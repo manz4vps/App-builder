@@ -9,6 +9,7 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import rikka.shizuku.Shizuku
 
 class SidebarService : Service() {
 
@@ -37,7 +38,6 @@ class SidebarService : Service() {
         val handle = sidebarView.findViewById<View>(R.id.sidebar_handle)
         val panel = sidebarView.findViewById<View>(R.id.sidebar_panel)
 
-        // Logika Swipe Handle
         handle.setOnTouchListener { _, event ->
             val action = event.actionMasked
             if (action == MotionEvent.ACTION_DOWN) {
@@ -58,23 +58,23 @@ class SidebarService : Service() {
             }
         }
 
-        // Tombol WhatsApp (Pakai format andalan lu: com.whatsapp/.Main)
+        // WhatsApp - Format andalan lu
         sidebarView.findViewById<View>(R.id.btn_wa).setOnClickListener {
-            executeShellCommand("am start --windowingMode 5 -n com.whatsapp/.Main")
+            runShizuku("am start --windowingMode 5 -n com.whatsapp/.Main")
             panel.visibility = View.GONE
             isPanelOpen = false
         }
 
-        // Tombol Chrome
+        // Chrome
         sidebarView.findViewById<View>(R.id.btn_chrome).setOnClickListener {
-            executeShellCommand("am start --windowingMode 5 -n com.android.chrome/com.google.android.apps.chrome.Main")
+            runShizuku("am start --windowingMode 5 -n com.android.chrome/com.google.android.apps.chrome.Main")
             panel.visibility = View.GONE
             isPanelOpen = false
         }
 
-        // Tombol Settings
+        // Settings
         sidebarView.findViewById<View>(R.id.btn_settings).setOnClickListener {
-            executeShellCommand("am start --windowingMode 5 -n com.android.settings/.Settings")
+            runShizuku("am start --windowingMode 5 -n com.android.settings/.Settings")
             panel.visibility = View.GONE
             isPanelOpen = false
         }
@@ -82,10 +82,11 @@ class SidebarService : Service() {
         windowManager.addView(sidebarView, params)
     }
 
-    private fun executeShellCommand(command: String) {
+    private fun runShizuku(command: String) {
         try {
-            val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", command))
-            process.waitFor()
+            if (Shizuku.pingBinder()) {
+                Shizuku.newProcess(arrayOf("sh", "-c", command), null, null)
+            }
         } catch (e: Exception) {
             e.printStackTrace()
         }
