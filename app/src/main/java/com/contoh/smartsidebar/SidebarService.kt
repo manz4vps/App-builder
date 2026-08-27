@@ -38,7 +38,7 @@ class SidebarService : Service() {
         val handle = sidebarView.findViewById<View>(R.id.sidebar_handle)
         val panel = sidebarView.findViewById<View>(R.id.sidebar_panel)
 
-        // Deteksi SWIPE Kiri ke Kanan
+        // Logika Swipe Handle
         handle.setOnTouchListener { _, event ->
             when (event.action) {
                 MotionEvent.ACTION_DOWN -> {
@@ -47,7 +47,7 @@ class SidebarService : Service() {
                 }
                 MotionEvent.ACTION_UP -> {
                     val deltaX = event.rawX - initialX
-                    if (deltaX > 20) { // Geser sedikit ke kanan langsung kebuka
+                    if (deltaX > 20) {
                         isPanelOpen = true
                         panel.visibility = View.VISIBLE
                     } else if (deltaX < -10 && isPanelOpen) {
@@ -60,23 +60,23 @@ class SidebarService : Service() {
             }
         }
 
-        // Action Klik WhatsApp
+        // 1. Tombol WhatsApp (Langsung tembak target activity-nya)
         sidebarView.findViewById<View>(R.id.btn_wa).setOnClickListener {
-            openAppFloating("com.whatsapp")
+            runCommand("am start --windowingMode 5 -n com.whatsapp/com.whatsapp.Home")
             panel.visibility = View.GONE
             isPanelOpen = false
         }
 
-        // Action Klik Chrome
+        // 2. Tombol Chrome
         sidebarView.findViewById<View>(R.id.btn_chrome).setOnClickListener {
-            openAppFloating("com.android.chrome")
+            runCommand("am start --windowingMode 5 -n com.android.chrome/com.google.android.apps.chrome.Main")
             panel.visibility = View.GONE
             isPanelOpen = false
         }
 
-        // Action Klik Settings
+        // 3. Tombol Settings (Persis kaya yang lu sebutin!)
         sidebarView.findViewById<View>(R.id.btn_settings).setOnClickListener {
-            openAppFloating("com.android.settings")
+            runCommand("am start --windowingMode 5 -n com.android.settings/.Settings")
             panel.visibility = View.GONE
             isPanelOpen = false
         }
@@ -84,13 +84,10 @@ class SidebarService : Service() {
         windowManager.addView(sidebarView, params)
     }
 
-    // Mantra Pemanggil Windowing Mode Floating via Shizuku (Fix 100% Buka)
-    private fun openAppFloating(packageName: String) {
-        val command = "am start --windowingMode 5 -n $(cmd package resolve-activity --brief $packageName | tail -n 1)"
+    // Eksekusi command langsung via Shizuku tanpa syarat ribet
+    private fun runCommand(command: String) {
         try {
-            if (Shizuku.pingBinder()) {
-                Shizuku.newProcess(arrayOf("sh", "-c", command), null, null)
-            }
+            Shizuku.newProcess(arrayOf("sh", "-c", command), null, null)
         } catch (e: Exception) {
             e.printStackTrace()
         }
