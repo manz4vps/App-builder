@@ -1,5 +1,6 @@
 package com.contoh.smartsidebar
 
+import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.net.Uri
@@ -7,15 +8,13 @@ import android.os.Bundle
 import android.provider.Settings
 import android.widget.Button
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import rikka.shizuku.Shizuku
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : Activity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        // Tombol 1: Minta izin Overlay (System Alert Window)
         findViewById<Button>(R.id.btn_req_overlay).setOnClickListener {
             if (!Settings.canDrawOverlays(this)) {
                 val intent = Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
@@ -25,7 +24,6 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Tombol 2: Minta izin Shizuku
         findViewById<Button>(R.id.btn_req_shizuku).setOnClickListener {
             if (Shizuku.pingBinder()) {
                 if (Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) {
@@ -38,11 +36,10 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Tombol 3: Jalanin Sidebar Service
         findViewById<Button>(R.id.btn_start_service).setOnClickListener {
             if (Settings.canDrawOverlays(this)) {
                 startService(Intent(this, SidebarService::class.java))
-                finish() // Langsung tutup aplikasi biar rapi, sidebar jalan di background
+                finish() 
             } else {
                 Toast.makeText(this, "Pencet Tombol 1 dulu Bro!", Toast.LENGTH_SHORT).show()
             }
