@@ -15,7 +15,6 @@ android {
         versionName "1.0"
     }
 
-    // Samain versi Java 17 biar kodingan gak bentrok
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_17
         targetCompatibility JavaVersion.VERSION_17
@@ -28,6 +27,7 @@ android {
 
 dependencies {
     implementation 'androidx.core:core-ktx:1.12.0'
-    // Versi Shizuku diturunin ke 12.1.0 biar fitur newProcess kebuka
+    // Shizuku API + Provider (Biar muncul di Application Management)
     implementation 'dev.rikka.shizuku:api:12.1.0'
+    implementation 'dev.rikka.shizuku:provider:12.1.0'
 }
