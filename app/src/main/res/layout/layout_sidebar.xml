@@ -5,14 +5,14 @@
     android:orientation="horizontal"
     android:gravity="center_vertical">
 
-    <!-- HANDLE KIRI: Tipis & Melengkung (Warna Putih Transparan) -->
+    <!-- HANDLE KIRI -->
     <View
         android:id="@+id/sidebar_handle"
         android:layout_width="4dp"
         android:layout_height="60dp"
         android:background="#AFFFFFFF" />
 
-    <!-- PANEL SMART SIDEBAR (Elegan & Modern) -->
+    <!-- PANEL SMART SIDEBAR -->
     <LinearLayout
         android:id="@+id/sidebar_panel"
         android:layout_width="160dp"
@@ -43,12 +43,18 @@
             android:clickable="true"
             android:focusable="true">
 
+            <ImageView
+                android:id="@+id/ic_wa"
+                android:layout_width="24dp"
+                android:layout_height="24dp" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="💬  WhatsApp"
+                android:text="WhatsApp"
                 android:textColor="#FFFFFF"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:layout_marginStart="12dp"/>
         </LinearLayout>
 
         <!-- Tombol Chrome -->
@@ -62,12 +68,18 @@
             android:clickable="true"
             android:focusable="true">
 
+            <ImageView
+                android:id="@+id/ic_chrome"
+                android:layout_width="24dp"
+                android:layout_height="24dp" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="🌐  Chrome"
+                android:text="Chrome"
                 android:textColor="#FFFFFF"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:layout_marginStart="12dp"/>
         </LinearLayout>
 
         <!-- Tombol Settings -->
@@ -81,12 +93,18 @@
             android:clickable="true"
             android:focusable="true">
 
+            <ImageView
+                android:id="@+id/ic_settings"
+                android:layout_width="24dp"
+                android:layout_height="24dp" />
+
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="⚙️  Pengaturan"
+                android:text="Pengaturan"
                 android:textColor="#FFFFFF"
-                android:textSize="14sp" />
+                android:textSize="14sp"
+                android:layout_marginStart="12dp"/>
         </LinearLayout>
 
     </LinearLayout>
