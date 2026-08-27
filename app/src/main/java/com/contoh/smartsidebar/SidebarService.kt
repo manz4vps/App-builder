@@ -1,13 +1,17 @@
 package com.contoh.smartsidebar
 
+import android.app.AlarmManager
 import android.app.Notification
 import android.app.NotificationChannel
 import android.app.NotificationManager
+import android.app.PendingIntent
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.PixelFormat
 import android.os.IBinder
+import android.os.SystemClock
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -33,12 +37,10 @@ class SidebarService : Service() {
     private var initialTouchX = 0f
     private var initialTouchY = 0f
 
-    // 4 APLIKASI UTAMA DENGAN COMMAND JALUR PASTI
     private val appList = listOf(
         AppItem("WhatsApp", "com.whatsapp", "am start --windowingMode 5 -n com.whatsapp/.Main"),
         AppItem("Chrome", "com.android.chrome", "am start --windowingMode 5 -n com.android.chrome/com.google.android.apps.chrome.Main"),
-        AppItem("YouTube", "com.google.android.youtube", "am start --windowingMode 5 -n com.google.android.youtube/com.google.android.apps.youtube.app.WatchWhileActivity"),
-        AppItem("TikTok", "com.zhiliaoapp.musically", "am start --windowingMode 5 -n com.zhiliaoapp.musically/com.ss.android.ugc.aweme.main.MainActivity")
+        AppItem("YouTube", "com.google.android.youtube", "am start --windowingMode 5 -n com.google.android.youtube/com.google.android.apps.youtube.app.WatchWhileActivity")
     )
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -63,7 +65,7 @@ class SidebarService : Service() {
         
         val notification = Notification.Builder(this, channelId)
             .setContentTitle("Smart Sidebar Aktif")
-            .setContentText("Berjalan di latar belakang.")
+            .setContentText("Layanan berjalan di latar belakang.")
             .setSmallIcon(android.R.drawable.ic_menu_agenda)
             .build()
         startForeground(1, notification)
@@ -94,11 +96,11 @@ class SidebarService : Service() {
             gridParams.width = 0
             gridParams.height = GridLayout.LayoutParams.WRAP_CONTENT
             gridParams.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
-            gridParams.setMargins(4, 10, 4, 10)
+            gridParams.setMargins(4, 8, 4, 8)
             itemLayout.layoutParams = gridParams
 
             val icon = ImageView(this)
-            icon.layoutParams = LinearLayout.LayoutParams(85, 85)
+            icon.layoutParams = LinearLayout.LayoutParams(75, 75)
             try {
                 icon.setImageDrawable(pm.getApplicationIcon(app.pkg))
             } catch (e: Exception) {
@@ -110,7 +112,7 @@ class SidebarService : Service() {
             text.setTextColor(Color.WHITE)
             text.textSize = 10f
             text.gravity = Gravity.CENTER
-            text.setPadding(0, 6, 0, 0)
+            text.setPadding(0, 4, 0, 0)
 
             itemLayout.addView(icon)
             itemLayout.addView(text)
@@ -171,10 +173,33 @@ class SidebarService : Service() {
         }
     }
 
+    // PENGAMAN EKSTRA: Kalau service mati, alarm akan otomatis menghidupkan kembali service-nya
+    override fun onClearedFromRecent() {
+        super.onClearedFromRecent()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
-        if (::sidebarView.isInitialized) {
-            windowManager.removeView(sidebarView)
+        
+        try {
+            if (::sidebarView.isInitialized) {
+                windowManager.removeView(sidebarView)
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
+
+        // Daftarkan alarm restart otomatis agar service dihidupkan lagi oleh sistem
+        val restartIntent = Intent(applicationContext, SidebarService::class.java)
+        val pendingIntent = PendingIntent.getService(
+            this, 199, restartIntent, 
+            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
+        )
+        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
+        alarmManager.set(
+            AlarmManager.ELAPSED_REALTIME_WAKEUP,
+            SystemClock.elapsedRealtime() + 1000,
+            pendingIntent
+        )
     }
 }
