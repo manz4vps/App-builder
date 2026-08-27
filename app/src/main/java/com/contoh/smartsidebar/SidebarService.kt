@@ -1,161 +1,56 @@
 package com.contoh.smartsidebar
 
-import android.app.Service
+import android.app.Activity
 import android.content.Intent
-import android.graphics.Color
-import android.graphics.PixelFormat
-import android.os.IBinder
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.MotionEvent
-import android.view.View
-import android.view.WindowManager
-import android.widget.GridLayout
-import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.TextView
+import android.content.pm.PackageManager
+import android.net.Uri
+import android.os.Bundle
+import android.provider.Settings
+import android.widget.Button
+import android.widget.Toast
 import rikka.shizuku.Shizuku
-import kotlin.math.abs
 
-data class AppItem(val name: String, val pkg: String, val command: String)
+class MainActivity : Activity() {
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_main)
 
-class SidebarService : Service() {
+        // TOMBOL 1: Izin Overlay
+        findViewById<Button>(R.id.btn_req_overlay).setOnClickListener {
+            if (!Settings.canDrawOverlays(this)) {
+                startActivity(Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")))
+            } else {
+                Toast.makeText(this, "Izin Overlay sudah Ok!", Toast.LENGTH_SHORT).show()
+            }
+        }
 
-    private lateinit var windowManager: WindowManager
-    private lateinit var sidebarView: View
-    private lateinit var params: WindowManager.LayoutParams
-    
-    private var isPanelOpen = false
-    private var initialY = 0
-    private var initialTouchX = 0f
-    private var initialTouchY = 0f
-
-    private val appList = listOf(
-        AppItem("WhatsApp", "com.whatsapp", "am start --windowingMode 5 -n com.whatsapp/.Main"),
-        AppItem("Chrome", "com.android.chrome", "am start --windowingMode 5 -n com.android.chrome/com.google.android.apps.chrome.Main"),
-        AppItem("YouTube", "com.google.android.youtube", "am start --windowingMode 5 -n com.google.android.youtube/com.google.android.apps.youtube.app.WatchWhileActivity")
-    )
-
-    override fun onBind(intent: Intent?): IBinder? = null
-
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        return START_NOT_STICKY 
-    }
-
-    override fun onCreate() {
-        super.onCreate()
-
-        windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
-        params = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            WindowManager.LayoutParams.WRAP_CONTENT,
-            WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
-            PixelFormat.TRANSLUCENT
-        )
-        params.gravity = Gravity.START or Gravity.CENTER_VERTICAL
-
-        sidebarView = LayoutInflater.from(this).inflate(R.layout.layout_sidebar, null)
-        val handle = sidebarView.findViewById<View>(R.id.sidebar_handle)
-        val panel = sidebarView.findViewById<View>(R.id.sidebar_panel)
-
-        val grid = sidebarView.findViewById<GridLayout>(R.id.app_grid)
-        val pm = packageManager
-
-        for (app in appList) {
-            val itemLayout = LinearLayout(this)
-            itemLayout.orientation = LinearLayout.VERTICAL
-            itemLayout.gravity = Gravity.CENTER
-            
-            val gridParams = GridLayout.LayoutParams()
-            gridParams.width = 0
-            gridParams.height = GridLayout.LayoutParams.WRAP_CONTENT
-            gridParams.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
-            gridParams.setMargins(4, 8, 4, 8)
-            itemLayout.layoutParams = gridParams
-
-            val icon = ImageView(this)
-            icon.layoutParams = LinearLayout.LayoutParams(75, 75)
+        // TOMBOL 2: Izin Shizuku
+        findViewById<Button>(R.id.btn_req_shizuku).setOnClickListener {
             try {
-                icon.setImageDrawable(pm.getApplicationIcon(app.pkg))
+                if (Shizuku.pingBinder()) {
+                    if (Shizuku.checkSelfPermission() != PackageManager.PERMISSION_GRANTED) {
+                        Shizuku.requestPermission(100)
+                    } else {
+                        Toast.makeText(this, "Izin Shizuku sudah Ok!", Toast.LENGTH_SHORT).show()
+                    }
+                } else {
+                    Toast.makeText(this, "Shizuku belum aktif!", Toast.LENGTH_LONG).show()
+                }
             } catch (e: Exception) {
-                icon.setImageResource(android.R.drawable.sym_def_app_icon)
-            }
-
-            val text = TextView(this)
-            text.text = app.name
-            text.setTextColor(Color.WHITE)
-            text.textSize = 10f
-            text.gravity = Gravity.CENTER
-            text.setPadding(0, 4, 0, 0)
-
-            itemLayout.addView(icon)
-            itemLayout.addView(text)
-
-            itemLayout.setOnClickListener {
-                runShizuku(app.command)
-                panel.visibility = View.GONE
-                isPanelOpen = false
-            }
-
-            grid.addView(itemLayout)
-        }
-
-        handle.setOnTouchListener { _, event ->
-            when (event.actionMasked) {
-                MotionEvent.ACTION_DOWN -> {
-                    initialY = params.y
-                    initialTouchX = event.rawX
-                    initialTouchY = event.rawY
-                    true
-                }
-                MotionEvent.ACTION_MOVE -> {
-                    val deltaY = (event.rawY - initialTouchY).toInt()
-                    if (abs(deltaY) > 5) {
-                        params.y = initialY + deltaY
-                        windowManager.updateViewLayout(sidebarView, params)
-                    }
-                    true
-                }
-                MotionEvent.ACTION_UP -> {
-                    val deltaX = event.rawX - initialTouchX
-                    val deltaY = event.rawY - initialTouchY
-                    
-                    if (abs(deltaX) > 20 && abs(deltaX) > abs(deltaY)) {
-                        if (!isPanelOpen && deltaX > 20) {
-                            isPanelOpen = true
-                            panel.visibility = View.VISIBLE
-                        } else if (isPanelOpen) {
-                            isPanelOpen = false
-                            panel.visibility = View.GONE
-                        }
-                    }
-                    true
-                }
-                else -> false
+                Toast.makeText(this, "Error: ${e.message}", Toast.LENGTH_LONG).show()
             }
         }
-        windowManager.addView(sidebarView, params)
-    }
 
-    private fun runShizuku(command: String) {
-        try {
-            if (Shizuku.pingBinder()) {
-                Shizuku.newProcess(arrayOf("sh", "-c", command), null, null)
+        // TOMBOL 3: Jalankan Sidebar secara manual (Aman dari crash otomatis)
+        findViewById<Button>(R.id.btn_start_service).setOnClickListener {
+            if (Settings.canDrawOverlays(this)) {
+                val serviceIntent = Intent(this, SidebarService::class.java)
+                startService(serviceIntent)
+                Toast.makeText(this, "Smart Sidebar Dijalankan!", Toast.LENGTH_SHORT).show()
+                finish()
+            } else {
+                Toast.makeText(this, "Pencet Tombol 1 dulu Bro!", Toast.LENGTH_SHORT).show()
             }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        try {
-            if (::sidebarView.isInitialized) {
-                windowManager.removeView(sidebarView)
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
         }
     }
 }
