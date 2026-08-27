@@ -33,7 +33,6 @@ class SidebarService : Service() {
     private var initialTouchX = 0f
     private var initialTouchY = 0f
 
-    // 4 APLIKASI UTAMA (WhatsApp, Chrome, YouTube, TikTok)
     private val appList = listOf(
         AppItem("WhatsApp", "com.whatsapp", "am start --windowingMode 5 -n com.whatsapp/.Main"),
         AppItem("Chrome", "com.android.chrome", "am start --windowingMode 5 -n com.android.chrome/com.google.android.apps.chrome.Main"),
@@ -45,6 +44,15 @@ class SidebarService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         return START_STICKY 
+    }
+
+    // FUNGSI INI KUNCINYA: Kalau aplikasi di-swipe ke atas/clear dari recent, 
+    // dia otomatis manggil diri sendiri buat idup lagi!
+    override fun onTaskRemoved(rootIntent: Intent?) {
+        super.onTaskRemoved(rootIntent)
+        val restartServiceIntent = Intent(applicationContext, this.javaClass)
+        restartServiceIntent.setPackage(packageName)
+        startService(restartServiceIntent)
     }
 
     override fun onCreate() {
@@ -75,7 +83,6 @@ class SidebarService : Service() {
         val handle = sidebarView.findViewById<View>(R.id.sidebar_handle)
         val panel = sidebarView.findViewById<View>(R.id.sidebar_panel)
 
-        // Generate Grid Aplikasi (4 Item: 2x2 rapi)
         val grid = sidebarView.findViewById<GridLayout>(R.id.app_grid)
         val pm = packageManager
 
@@ -118,7 +125,6 @@ class SidebarService : Service() {
             grid.addView(itemLayout)
         }
 
-        // Logika Touch: Geser Atas-Bawah & Swipe 2x untuk Buka/Tutup
         handle.setOnTouchListener { _, event ->
             when (event.actionMasked) {
                 MotionEvent.ACTION_DOWN -> {
