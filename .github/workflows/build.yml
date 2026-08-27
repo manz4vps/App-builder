@@ -19,11 +19,15 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Bikin file Gradle Wrapper (Kunci versi ke 8.4)
-        run: gradle wrapper --gradle-version 8.4
+      # Ini JALUR VIP-nya, langsung install Gradle 8.4 yang pas buat Android
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.4'
 
-      - name: Build APK (Pake gradlew yang baru dibikin)
-        run: ./gradlew assembleDebug
+      # Sekarang panggil gradle biasa, otomatis pakai versi 8.4 tadi
+      - name: Build APK
+        run: gradle assembleDebug
 
       - name: Upload APK ke Github Actions
         uses: actions/upload-artifact@v4
