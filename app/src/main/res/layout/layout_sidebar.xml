@@ -5,40 +5,89 @@
     android:orientation="horizontal"
     android:gravity="center_vertical">
 
-    <!-- HANDLE KIRI: Warna putih transparan, digeser ke kanan buat buka -->
+    <!-- HANDLE KIRI: Tipis & Melengkung (Warna Putih Transparan) -->
     <View
         android:id="@+id/sidebar_handle"
-        android:layout_width="12dp"
-        android:layout_height="130dp"
-        android:background="#CCFFFFFF" />
+        android:layout_width="4dp"
+        android:layout_height="60dp"
+        android:background="#AFFFFFFF" />
 
-    <!-- PANEL APLIKASI -->
+    <!-- PANEL SMART SIDEBAR (Elegan & Modern) -->
     <LinearLayout
         android:id="@+id/sidebar_panel"
-        android:layout_width="wrap_content"
+        android:layout_width="160dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="#EE222222"
-        android:padding="8dp"
+        android:background="#DD1E1E2C"
+        android:padding="12dp"
+        android:layout_marginStart="4dp"
         android:visibility="gone">
 
-        <Button
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Smart Sidebar"
+            android:textColor="#FFFFFF"
+            android:textStyle="bold"
+            android:textSize="14sp"
+            android:layout_marginBottom="12dp"/>
+
+        <!-- Tombol WhatsApp -->
+        <LinearLayout
             android:id="@+id/btn_wa"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="WhatsApp" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="8dp"
+            android:clickable="true"
+            android:focusable="true">
 
-        <Button
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="💬  WhatsApp"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- Tombol Chrome -->
+        <LinearLayout
             android:id="@+id/btn_chrome"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Chrome" />
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="8dp"
+            android:clickable="true"
+            android:focusable="true">
 
-        <Button
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="🌐  Chrome"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+        </LinearLayout>
+
+        <!-- Tombol Settings -->
+        <LinearLayout
             android:id="@+id/btn_settings"
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Settings" />
-            
+            android:orientation="horizontal"
+            android:gravity="center_vertical"
+            android:padding="8dp"
+            android:clickable="true"
+            android:focusable="true">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="⚙️  Pengaturan"
+                android:textColor="#FFFFFF"
+                android:textSize="14sp" />
+        </LinearLayout>
+
     </LinearLayout>
 </LinearLayout>
