@@ -173,11 +173,6 @@ class SidebarService : Service() {
         }
     }
 
-    // PENGAMAN EKSTRA: Kalau service mati, alarm akan otomatis menghidupkan kembali service-nya
-    override fun onClearedFromRecent() {
-        super.onClearedFromRecent()
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         
@@ -189,7 +184,6 @@ class SidebarService : Service() {
             e.printStackTrace()
         }
 
-        // Daftarkan alarm restart otomatis agar service dihidupkan lagi oleh sistem
         val restartIntent = Intent(applicationContext, SidebarService::class.java)
         val pendingIntent = PendingIntent.getService(
             this, 199, restartIntent, 
