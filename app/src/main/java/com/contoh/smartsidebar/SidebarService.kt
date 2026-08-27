@@ -33,11 +33,12 @@ class SidebarService : Service() {
     private var initialTouchX = 0f
     private var initialTouchY = 0f
 
+    // 4 APLIKASI UTAMA DENGAN COMMAND JALUR PASTI
     private val appList = listOf(
         AppItem("WhatsApp", "com.whatsapp", "am start --windowingMode 5 -n com.whatsapp/.Main"),
         AppItem("Chrome", "com.android.chrome", "am start --windowingMode 5 -n com.android.chrome/com.google.android.apps.chrome.Main"),
         AppItem("YouTube", "com.google.android.youtube", "am start --windowingMode 5 -n com.google.android.youtube/com.google.android.apps.youtube.app.WatchWhileActivity"),
-        AppItem("TikTok", "com.zhiliaoapp.musically", "am start --windowingMode 5 -p com.zhiliaoapp.musically")
+        AppItem("TikTok", "com.zhiliaoapp.musically", "am start --windowingMode 5 -n com.zhiliaoapp.musically/com.ss.android.ugc.aweme.main.MainActivity")
     )
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -46,8 +47,6 @@ class SidebarService : Service() {
         return START_STICKY 
     }
 
-    // FUNGSI INI KUNCINYA: Kalau aplikasi di-swipe ke atas/clear dari recent, 
-    // dia otomatis manggil diri sendiri buat idup lagi!
     override fun onTaskRemoved(rootIntent: Intent?) {
         super.onTaskRemoved(rootIntent)
         val restartServiceIntent = Intent(applicationContext, this.javaClass)
@@ -95,7 +94,7 @@ class SidebarService : Service() {
             gridParams.width = 0
             gridParams.height = GridLayout.LayoutParams.WRAP_CONTENT
             gridParams.columnSpec = GridLayout.spec(GridLayout.UNDEFINED, 1f)
-            gridParams.setMargins(4, 12, 4, 12)
+            gridParams.setMargins(4, 10, 4, 10)
             itemLayout.layoutParams = gridParams
 
             val icon = ImageView(this)
