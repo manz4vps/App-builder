@@ -6,8 +6,6 @@
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
     <uses-permission android:name="android.permission.QUERY_ALL_PACKAGES" tools:ignore="QueryAllPackagesPermission" />
-    
-    <!-- IZIN BARU: Biar kebal Kill & Auto-Nyala pas HP dihidupkan -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE_SPECIAL_USE" />
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
@@ -26,7 +24,6 @@
             android:exported="true"
             android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
 
-        <!-- SYSTEM AUTO-BOOT RECEIVER -->
         <receiver
             android:name=".BootReceiver"
             android:enabled="true"
@@ -46,6 +43,7 @@
             </intent-filter>
         </activity>
 
+        <!-- KUNCI UTAMA: Tambahan properti specialUse biar sistem ngga berani nge-kill service -->
         <service
             android:name=".SidebarService"
             android:enabled="true"
@@ -53,7 +51,7 @@
             android:foregroundServiceType="specialUse">
             <property
                 android:name="android.app.PROPERTY_SPECIAL_USE_FGS_SUBTYPE"
-                android:value="Smart Sidebar Overlay" />
+                android:value="Sidebar Overlay Persistence" />
         </service>
     </application>
 </manifest>
