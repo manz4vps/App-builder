@@ -12,100 +12,30 @@
         android:layout_height="60dp"
         android:background="#AFFFFFFF" />
 
-    <!-- PANEL SMART SIDEBAR -->
+    <!-- PANEL SMART SIDEBAR (Bentuk Elegan) -->
     <LinearLayout
         android:id="@+id/sidebar_panel"
-        android:layout_width="160dp"
+        android:layout_width="170dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="#DD1E1E2C"
-        android:padding="12dp"
+        android:background="#EE181824"
+        android:padding="8dp"
         android:layout_marginStart="4dp"
         android:visibility="gone">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Smart Sidebar"
-            android:textColor="#FFFFFF"
-            android:textStyle="bold"
-            android:textSize="14sp"
-            android:layout_marginBottom="12dp"/>
-
-        <!-- Tombol WhatsApp -->
-        <LinearLayout
-            android:id="@+id/btn_wa"
+        <!-- Kunci Scroll! (Kalo kepanjangan dia bakal bisa di-scroll ke atas/bawah) -->
+        <ScrollView
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="8dp"
-            android:clickable="true"
-            android:focusable="true">
+            android:layout_height="350dp"
+            android:scrollbars="none">
 
-            <ImageView
-                android:id="@+id/ic_wa"
-                android:layout_width="24dp"
-                android:layout_height="24dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
+            <!-- Tempat Grid Aplikasi 2 Kolom -->
+            <GridLayout
+                android:id="@+id/app_grid"
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="WhatsApp"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:layout_marginStart="12dp"/>
-        </LinearLayout>
-
-        <!-- Tombol Chrome -->
-        <LinearLayout
-            android:id="@+id/btn_chrome"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="8dp"
-            android:clickable="true"
-            android:focusable="true">
-
-            <ImageView
-                android:id="@+id/ic_chrome"
-                android:layout_width="24dp"
-                android:layout_height="24dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Chrome"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:layout_marginStart="12dp"/>
-        </LinearLayout>
-
-        <!-- Tombol Settings -->
-        <LinearLayout
-            android:id="@+id/btn_settings"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:gravity="center_vertical"
-            android:padding="8dp"
-            android:clickable="true"
-            android:focusable="true">
-
-            <ImageView
-                android:id="@+id/ic_settings"
-                android:layout_width="24dp"
-                android:layout_height="24dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Pengaturan"
-                android:textColor="#FFFFFF"
-                android:textSize="14sp"
-                android:layout_marginStart="12dp"/>
-        </LinearLayout>
-
+                android:columnCount="2" />
+            
+        </ScrollView>
     </LinearLayout>
 </LinearLayout>
