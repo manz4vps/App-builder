@@ -19,10 +19,11 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      # Step "chmod" dihapus karena tidak perlu
-      
-      - name: Build APK (Pakai Gradle Bawaan GitHub)
-        run: gradle assembleDebug
+      - name: Bikin file Gradle Wrapper (Kunci versi ke 8.4)
+        run: gradle wrapper --gradle-version 8.4
+
+      - name: Build APK (Pake gradlew yang baru dibikin)
+        run: ./gradlew assembleDebug
 
       - name: Upload APK ke Github Actions
         uses: actions/upload-artifact@v4
