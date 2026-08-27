@@ -1,17 +1,10 @@
 package com.contoh.smartsidebar
 
-import android.app.AlarmManager
-import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.app.Service
-import android.content.Context
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.PixelFormat
 import android.os.IBinder
-import android.os.SystemClock
 import android.view.Gravity
 import android.view.LayoutInflater
 import android.view.MotionEvent
@@ -46,29 +39,11 @@ class SidebarService : Service() {
     override fun onBind(intent: Intent?): IBinder? = null
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        return START_STICKY 
-    }
-
-    override fun onTaskRemoved(rootIntent: Intent?) {
-        super.onTaskRemoved(rootIntent)
-        val restartServiceIntent = Intent(applicationContext, this.javaClass)
-        restartServiceIntent.setPackage(packageName)
-        startService(restartServiceIntent)
+        return START_NOT_STICKY 
     }
 
     override fun onCreate() {
         super.onCreate()
-        
-        val channelId = "SidebarChannel"
-        val channel = NotificationChannel(channelId, "Smart Sidebar", NotificationManager.IMPORTANCE_MIN)
-        getSystemService(NotificationManager::class.java).createNotificationChannel(channel)
-        
-        val notification = Notification.Builder(this, channelId)
-            .setContentTitle("Smart Sidebar Aktif")
-            .setContentText("Layanan berjalan di latar belakang.")
-            .setSmallIcon(android.R.drawable.ic_menu_agenda)
-            .build()
-        startForeground(1, notification)
 
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
         params = WindowManager.LayoutParams(
@@ -175,7 +150,6 @@ class SidebarService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        
         try {
             if (::sidebarView.isInitialized) {
                 windowManager.removeView(sidebarView)
@@ -183,17 +157,5 @@ class SidebarService : Service() {
         } catch (e: Exception) {
             e.printStackTrace()
         }
-
-        val restartIntent = Intent(applicationContext, SidebarService::class.java)
-        val pendingIntent = PendingIntent.getService(
-            this, 199, restartIntent, 
-            PendingIntent.FLAG_ONE_SHOT or PendingIntent.FLAG_IMMUTABLE
-        )
-        val alarmManager = getSystemService(Context.ALARM_SERVICE) as AlarmManager
-        alarmManager.set(
-            AlarmManager.ELAPSED_REALTIME_WAKEUP,
-            SystemClock.elapsedRealtime() + 1000,
-            pendingIntent
-        )
     }
 }
