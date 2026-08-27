@@ -9,14 +9,19 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
+import android.widget.ImageView
 import rikka.shizuku.Shizuku
 
 class SidebarService : Service() {
 
     private lateinit var windowManager: WindowManager
     private lateinit var sidebarView: View
+    private lateinit var params: WindowManager.LayoutParams
+    
     private var isPanelOpen = false
-    private var initialX = 0f
+    private var initialY = 0
+    private var initialTouchX = 0f
+    private var initialTouchY = 0f
 
     override fun onBind(intent: Intent?): IBinder? = null
 
@@ -24,7 +29,7 @@ class SidebarService : Service() {
         super.onCreate()
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
         
-        val params = WindowManager.LayoutParams(
+        params = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
@@ -38,43 +43,64 @@ class SidebarService : Service() {
         val handle = sidebarView.findViewById<View>(R.id.sidebar_handle)
         val panel = sidebarView.findViewById<View>(R.id.sidebar_panel)
 
+        // BACA IKON APLIKASI ASLI DARI HP
+        try {
+            val pm = packageManager
+            sidebarView.findViewById<ImageView>(R.id.ic_wa).setImageDrawable(pm.getApplicationIcon("com.whatsapp"))
+            sidebarView.findViewById<ImageView>(R.id.ic_chrome).setImageDrawable(pm.getApplicationIcon("com.android.chrome"))
+            sidebarView.findViewById<ImageView>(R.id.ic_settings).setImageDrawable(pm.getApplicationIcon("com.android.settings"))
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        // LOGIKA DRAG (ATAS BAWAH) & SWIPE (KANAN)
         handle.setOnTouchListener { _, event ->
-            val action = event.actionMasked
-            if (action == MotionEvent.ACTION_DOWN) {
-                initialX = event.rawX
-                true
-            } else if (action == MotionEvent.ACTION_UP) {
-                val deltaX = event.rawX - initialX
-                if (deltaX > 20) {
-                    isPanelOpen = true
-                    panel.visibility = View.VISIBLE
-                } else if (deltaX < -10 && isPanelOpen) {
-                    isPanelOpen = false
-                    panel.visibility = View.GONE
+            when (event.actionMasked) {
+                MotionEvent.ACTION_DOWN -> {
+                    initialY = params.y
+                    initialTouchX = event.rawX
+                    initialTouchY = event.rawY
+                    true
                 }
-                true
-            } else {
-                false
+                MotionEvent.ACTION_MOVE -> {
+                    // Geser atas bawah
+                    val deltaY = (event.rawY - initialTouchY).toInt()
+                    params.y = initialY + deltaY
+                    windowManager.updateViewLayout(sidebarView, params)
+                    true
+                }
+                MotionEvent.ACTION_UP -> {
+                    val deltaX = event.rawX - initialTouchX
+                    if (deltaX > 20) {
+                        isPanelOpen = true
+                        panel.visibility = View.VISIBLE
+                    } else if (deltaX < -10 && isPanelOpen) {
+                        isPanelOpen = false
+                        panel.visibility = View.GONE
+                    }
+                    true
+                }
+                else -> false
             }
         }
 
-        // WhatsApp - Format andalan lu
+        // Tombol WhatsApp (Pakai --bounds biar ukurannya lebih kecil)
         sidebarView.findViewById<View>(R.id.btn_wa).setOnClickListener {
-            runShizuku("am start --windowingMode 5 -n com.whatsapp/.Main")
+            runShizuku("am start --windowingMode 5 --bounds 150,200,900,1600 -n com.whatsapp/.Main")
             panel.visibility = View.GONE
             isPanelOpen = false
         }
 
-        // Chrome
+        // Tombol Chrome
         sidebarView.findViewById<View>(R.id.btn_chrome).setOnClickListener {
-            runShizuku("am start --windowingMode 5 -n com.android.chrome/com.google.android.apps.chrome.Main")
+            runShizuku("am start --windowingMode 5 --bounds 150,200,900,1600 -n com.android.chrome/com.google.android.apps.chrome.Main")
             panel.visibility = View.GONE
             isPanelOpen = false
         }
 
-        // Settings
+        // Tombol Settings
         sidebarView.findViewById<View>(R.id.btn_settings).setOnClickListener {
-            runShizuku("am start --windowingMode 5 -n com.android.settings/.Settings")
+            runShizuku("am start --windowingMode 5 --bounds 150,200,900,1600 -n com.android.settings/.Settings")
             panel.visibility = View.GONE
             isPanelOpen = false
         }
