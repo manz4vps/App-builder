@@ -2,11 +2,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
-    <!-- Izin Wajib untuk Overlay & Shizuku -->
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.INTERNET" />
-
-    <!-- IZIN SHIZUKU (Ini kuncian biar masuk list Authorized!) -->
     <uses-permission android:name="moe.shizuku.manager.permission.API_V23" />
 
     <application
@@ -15,7 +12,15 @@
         android:supportsRtl="true"
         android:theme="@android:style/Theme.DeviceDefault.Light.NoActionBar">
 
-        <!-- MainActivity -->
+        <!-- INI PINTU SHIZUKU-NYA! KITA TULIS MANUAL BIAR NGGAK ERROR -->
+        <provider
+            android:name="rikka.shizuku.ShizukuProvider"
+            android:authorities="com.contoh.smartsidebar.shizuku"
+            android:multiprocess="false"
+            android:enabled="true"
+            android:exported="true"
+            android:permission="android.permission.INTERACT_ACROSS_USERS_FULL" />
+
         <activity
             android:name=".MainActivity"
             android:exported="true">
@@ -25,12 +30,10 @@
             </intent-filter>
         </activity>
 
-        <!-- SidebarService (Overlay Service) -->
         <service
             android:name=".SidebarService"
             android:enabled="true"
             android:exported="false" />
-
     </application>
 
 </manifest>
