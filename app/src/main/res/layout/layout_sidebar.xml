@@ -5,17 +5,17 @@
     android:orientation="horizontal"
     android:gravity="center_vertical">
 
-    <!-- HANDLE KIRI -->
+    <!-- HANDLE KIRI: Tinggi 120dp biar enak digeser ke atas/bawah -->
     <View
         android:id="@+id/sidebar_handle"
-        android:layout_width="4dp"
-        android:layout_height="60dp"
-        android:background="#AFFFFFFF" />
+        android:layout_width="6dp"
+        android:layout_height="120dp"
+        android:background="#CCFFFFFF" />
 
-    <!-- PANEL SMART SIDEBAR (Bentuk Elegan) -->
+    <!-- PANEL APLIKASI: Ramping, Elegan, dan Ikon Pas (Tidak Kebesaran) -->
     <LinearLayout
         android:id="@+id/sidebar_panel"
-        android:layout_width="170dp"
+        android:layout_width="145dp"
         android:layout_height="wrap_content"
         android:orientation="vertical"
         android:background="#EE181824"
@@ -23,19 +23,11 @@
         android:layout_marginStart="4dp"
         android:visibility="gone">
 
-        <!-- Kunci Scroll! (Kalo kepanjangan dia bakal bisa di-scroll ke atas/bawah) -->
-        <ScrollView
+        <GridLayout
+            android:id="@+id/app_grid"
             android:layout_width="match_parent"
-            android:layout_height="350dp"
-            android:scrollbars="none">
+            android:layout_height="wrap_content"
+            android:columnCount="2" />
 
-            <!-- Tempat Grid Aplikasi 2 Kolom -->
-            <GridLayout
-                android:id="@+id/app_grid"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:columnCount="2" />
-            
-        </ScrollView>
     </LinearLayout>
 </LinearLayout>
