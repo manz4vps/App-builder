@@ -5,20 +5,20 @@
     android:orientation="horizontal"
     android:gravity="center_vertical">
 
-    <!-- HANDLE KIRI (Bisa dipencet buat buka tutup) -->
+    <!-- HANDLE KIRI: Warna putih transparan, digeser ke kanan buat buka -->
     <View
         android:id="@+id/sidebar_handle"
-        android:layout_width="8dp"
-        android:layout_height="100dp"
-        android:background="#88000000" /> <!-- Warna hitam transparan -->
+        android:layout_width="12dp"
+        android:layout_height="130dp"
+        android:background="#CCFFFFFF" />
 
-    <!-- PANEL APLIKASI (Awalnya disembunyiin / visibility gone) -->
+    <!-- PANEL APLIKASI -->
     <LinearLayout
         android:id="@+id/sidebar_panel"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:background="#DDFFFFFF"
+        android:background="#EE222222"
         android:padding="8dp"
         android:visibility="gone">
 
