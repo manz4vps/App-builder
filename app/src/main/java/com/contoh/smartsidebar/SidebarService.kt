@@ -9,7 +9,6 @@ import android.view.LayoutInflater
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
-import rikka.shizuku.Shizuku
 
 class SidebarService : Service() {
 
@@ -40,43 +39,42 @@ class SidebarService : Service() {
 
         // Logika Swipe Handle
         handle.setOnTouchListener { _, event ->
-            when (event.action) {
-                MotionEvent.ACTION_DOWN -> {
-                    initialX = event.rawX
-                    true
+            val action = event.actionMasked
+            if (action == MotionEvent.ACTION_DOWN) {
+                initialX = event.rawX
+                true
+            } else if (action == MotionEvent.ACTION_UP) {
+                val deltaX = event.rawX - initialX
+                if (deltaX > 20) {
+                    isPanelOpen = true
+                    panel.visibility = View.VISIBLE
+                } else if (deltaX < -10 && isPanelOpen) {
+                    isPanelOpen = false
+                    panel.visibility = View.GONE
                 }
-                MotionEvent.ACTION_UP -> {
-                    val deltaX = event.rawX - initialX
-                    if (deltaX > 20) {
-                        isPanelOpen = true
-                        panel.visibility = View.VISIBLE
-                    } else if (deltaX < -10 && isPanelOpen) {
-                        isPanelOpen = false
-                        panel.visibility = View.GONE
-                    }
-                    true
-                }
-                else -> false
+                true
+            } else {
+                false
             }
         }
 
-        // 1. Tombol WhatsApp (Langsung tembak target activity-nya)
+        // Tombol WhatsApp (Pakai format andalan lu: com.whatsapp/.Main)
         sidebarView.findViewById<View>(R.id.btn_wa).setOnClickListener {
-            runCommand("am start --windowingMode 5 -n com.whatsapp/com.whatsapp.Home")
+            executeShellCommand("am start --windowingMode 5 -n com.whatsapp/.Main")
             panel.visibility = View.GONE
             isPanelOpen = false
         }
 
-        // 2. Tombol Chrome
+        // Tombol Chrome
         sidebarView.findViewById<View>(R.id.btn_chrome).setOnClickListener {
-            runCommand("am start --windowingMode 5 -n com.android.chrome/com.google.android.apps.chrome.Main")
+            executeShellCommand("am start --windowingMode 5 -n com.android.chrome/com.google.android.apps.chrome.Main")
             panel.visibility = View.GONE
             isPanelOpen = false
         }
 
-        // 3. Tombol Settings (Persis kaya yang lu sebutin!)
+        // Tombol Settings
         sidebarView.findViewById<View>(R.id.btn_settings).setOnClickListener {
-            runCommand("am start --windowingMode 5 -n com.android.settings/.Settings")
+            executeShellCommand("am start --windowingMode 5 -n com.android.settings/.Settings")
             panel.visibility = View.GONE
             isPanelOpen = false
         }
@@ -84,10 +82,10 @@ class SidebarService : Service() {
         windowManager.addView(sidebarView, params)
     }
 
-    // Eksekusi command langsung via Shizuku tanpa syarat ribet
-    private fun runCommand(command: String) {
+    private fun executeShellCommand(command: String) {
         try {
-            Shizuku.newProcess(arrayOf("sh", "-c", command), null, null)
+            val process = Runtime.getRuntime().exec(arrayOf("sh", "-c", command))
+            process.waitFor()
         } catch (e: Exception) {
             e.printStackTrace()
         }
