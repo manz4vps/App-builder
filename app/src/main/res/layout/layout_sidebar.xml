@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:gravity="center_vertical">
+
+    <!-- HANDLE KIRI (Bisa dipencet buat buka tutup) -->
+    <View
+        android:id="@+id/sidebar_handle"
+        android:layout_width="8dp"
+        android:layout_height="100dp"
+        android:background="#88000000" /> <!-- Warna hitam transparan -->
+
+    <!-- PANEL APLIKASI (Awalnya disembunyiin / visibility gone) -->
+    <LinearLayout
+        android:id="@+id/sidebar_panel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:background="#DDFFFFFF"
+        android:padding="8dp"
+        android:visibility="gone">
+
+        <Button
+            android:id="@+id/btn_wa"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="WhatsApp" />
+
+        <Button
+            android:id="@+id/btn_chrome"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Chrome" />
+
+        <Button
+            android:id="@+id/btn_settings"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Settings" />
+            
+    </LinearLayout>
+</LinearLayout>
